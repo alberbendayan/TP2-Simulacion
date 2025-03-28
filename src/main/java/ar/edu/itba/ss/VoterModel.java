@@ -1,14 +1,16 @@
 package ar.edu.itba.ss;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
+
 public class VoterModel {
     private static final int GRID_SIZE = 50;
     private static final int MONTE_CARLO_STEPS = 100000;
+    private static final int SAVE_INTERVAL = GRID_SIZE*GRID_SIZE;
 
-    // Probability of changing opinion
     private static final double[] PROBABILITIES = {0.01, 0.1, 0.9};
     private static int[][] grid = new int[GRID_SIZE][GRID_SIZE];
     private static Random random = new Random();
@@ -17,7 +19,6 @@ public class VoterModel {
         for (double probability : PROBABILITIES) {
             initializeGrid();
             runMonteCarloSimulation(probability);
-            saveResults(probability);
         }
     }
 
@@ -30,7 +31,13 @@ public class VoterModel {
     }
 
     private static void runMonteCarloSimulation(double probability) {
-        for (int step = 0; step < MONTE_CARLO_STEPS; step++) {
+        String dirPath = "result/p_" + probability;
+        File dir = new File(dirPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        for (int step = 1; step <= MONTE_CARLO_STEPS; step++) {
             int i = random.nextInt(GRID_SIZE);
             int j = random.nextInt(GRID_SIZE);
 
@@ -42,11 +49,17 @@ public class VoterModel {
             if ((majorityOpinion != grid[i][j]) && random.nextDouble() < probability) {
                 grid[i][j] *= -1; // Change opinion
             }
+
+            // Guardar cada SAVE_INTERVAL iteraciones
+            if (step % SAVE_INTERVAL == 0) {
+                saveResults(probability, step, dirPath);
+            }
         }
     }
 
-    private static void saveResults(double probability) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("results_p" + probability + ".txt"))) {
+    private static void saveResults(double probability, int iteration, String dirPath) {
+        String fileName = String.format("%s/result_%.2f_%d.txt", dirPath, probability, iteration);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (int i = 0; i < GRID_SIZE; i++) {
                 for (int j = 0; j < GRID_SIZE; j++) {
                     writer.write(grid[i][j] + " ");
