@@ -89,11 +89,11 @@ public class VoterModel {
         String fileGeneralResultsName = String.format("%s/results_%.2f.txt",resultPath, probability);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileGeneralResultsName))) {
             for (int i = 0; i < copy.size(); i++) {
-                int number = copy.get(i);
+                Double number = copy.get(i).doubleValue();
                 number = number / (GRID_SIZE*GRID_SIZE);
                 if(number<0)
                     number = number * -1;
-                writer.write(number);
+                writer.write(number.toString());
                 writer.newLine();
             }
         } catch (IOException e) {
