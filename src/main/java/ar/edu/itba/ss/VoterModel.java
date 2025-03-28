@@ -4,7 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Random;
+import java.util.*;
 
 public class VoterModel {
     private static final int GRID_SIZE = 50;
@@ -15,10 +15,15 @@ public class VoterModel {
     private static int[][] grid = new int[GRID_SIZE][GRID_SIZE];
     private static Random random = new Random();
 
+    private static Map<Double, List<Integer>> results;
+
     public static void main(String[] args) {
+        results = new HashMap<>();
         for (double probability : PROBABILITIES) {
+            results.put(probability, new ArrayList<>());
             initializeGrid();
             runMonteCarloSimulation(probability);
+            saveGeneralResults(probability);
         }
     }
 
@@ -53,17 +58,38 @@ public class VoterModel {
             // Guardar cada SAVE_INTERVAL iteraciones
             if (step % SAVE_INTERVAL == 0) {
                 saveResults(probability, step, dirPath);
-            }
+            };
         }
     }
 
     private static void saveResults(double probability, int iteration, String dirPath) {
         String fileName = String.format("%s/result_%.2f_%010d.txt", dirPath, probability, iteration);
+        int sum = 0;
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (int i = 0; i < GRID_SIZE; i++) {
                 for (int j = 0; j < GRID_SIZE; j++) {
                     writer.write(grid[i][j] + " ");
+                    sum+=grid[i][j];
                 }
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        results.get(probability).add(sum);
+    }
+
+    private static void saveGeneralResults(Double probability){
+        String resultPath = "result/general";
+        File resultDir = new File(resultPath);
+        if(!resultDir.exists()){
+            resultDir.mkdirs();
+        }
+        List<Integer> copy = new ArrayList<>(results.get(probability));
+        String fileGeneralResultsName = String.format("%s/results_%.2f.txt",resultPath, probability);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileGeneralResultsName))) {
+            for (int i = 0; i < copy.size(); i++) {
+                writer.write(copy.get(i).toString());
                 writer.newLine();
             }
         } catch (IOException e) {
