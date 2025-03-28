@@ -58,7 +58,7 @@ public class VoterModel {
     }
 
     private static void saveResults(double probability, int iteration, String dirPath) {
-        String fileName = String.format("%s/result_%.2f_%d.txt", dirPath, probability, iteration);
+        String fileName = String.format("%s/result_%.2f_%010d.txt", dirPath, probability, iteration);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (int i = 0; i < GRID_SIZE; i++) {
                 for (int j = 0; j < GRID_SIZE; j++) {
