@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+import sys
 
-def plot_monte_carlo_differences(filename):
+def plot_monte_carlo_differences(filename,output_file):
     try:
         # Read the data from the file
         data = np.loadtxt(filename)
@@ -23,10 +25,12 @@ def plot_monte_carlo_differences(filename):
         plt.grid(True, alpha=0.3)
         plt.ylim(0, 1)
         
-        # Show the plot
+        # Save the plot
         plt.tight_layout()
-        plt.savefig('monte_carlo_differences.png')
-        plt.show()
+        plt.savefig(output_file)
+
+        # no mostremos xq perdemos recursos
+        # plt.show()
         
         # Check if stationary state is reached
         # (You might want to modify this criterion based on your specific definition)
@@ -45,5 +49,17 @@ def plot_monte_carlo_differences(filename):
 
 if __name__ == "__main__":
     # Replace with the path to your data file
-    file_path = "../result/general/results_0.01.txt"
-    plot_monte_carlo_differences(file_path)
+
+    if len(sys.argv) != 3:
+        print("Uso: python script.py <N>")
+        sys.exit(1)
+
+    path = sys.argv[1]
+    p = sys.argv[2]
+
+    output_folder = "../graphics_result"
+    os.makedirs(output_folder, exist_ok=True) # carpeta de salida
+
+    output_file = output_folder+"/monte_carlo_differences_"+p+".png"
+    file_path = path+"general_"+p+".txt"
+    plot_monte_carlo_differences(file_path,output_file)
