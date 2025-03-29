@@ -17,7 +17,7 @@ public class VoterModel {
     private static final Random random = new Random();
 
     private static int gridSize = 50;
-    private static int monteCarloSteps = 100000000;
+    private static int monteCarloSteps = 1000000;
     private static int saveInterval;
 
     private static int[][] grid;
@@ -124,7 +124,7 @@ public class VoterModel {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (Integer result : results) {
-                writer.write(Math.abs(result / (gridSize * gridSize)));
+                writer.write(String.valueOf(Math.abs((double) result / (gridSize * gridSize))));
                 writer.newLine();
             }
         } catch (IOException e) {
