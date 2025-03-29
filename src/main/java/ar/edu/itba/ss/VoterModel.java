@@ -4,9 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class VoterModel {
 
@@ -22,6 +22,7 @@ public class VoterModel {
 
     private static int[][] grid;
 
+    private static String resultsDirectory;
     private static String resultFileNameTemplate = "%%s/result_%%0%dd.txt";
 
     public static void main(String[] args) {
@@ -41,6 +42,16 @@ public class VoterModel {
         int resultMaxLengthTemplate = String.valueOf(monteCarloSteps).length();
         resultFileNameTemplate = String.format(resultFileNameTemplate, resultMaxLengthTemplate);
 
+        resultsDirectory = String.format("%s/%s", RESULTS_DIR, new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()));
+
+        File dir = new File(resultsDirectory);
+        if (!dir.exists() && !dir.mkdirs()) {
+            System.err.println("Failed to create directory: " + dir);
+            System.exit(1);
+        }
+
+        saveConfigurationJson();
+
         for (double probability : PROBABILITIES) {
             results.clear();
 
@@ -59,11 +70,11 @@ public class VoterModel {
     }
 
     private static void runMonteCarloSimulation(double probability) {
-        String dirPath = String.format("%s/%.4f", RESULTS_DIR, probability);
-        File dir = new File(dirPath);
+        String dirPath = String.format("%s/%.4f", resultsDirectory, probability);
 
+        File dir = new File(dirPath);
         if (!dir.exists() && !dir.mkdirs()) {
-            System.err.println("Failed to create directory: " + dirPath);
+            System.err.println("Failed to create directory: " + dir);
             System.exit(1);
         }
 
@@ -109,7 +120,7 @@ public class VoterModel {
     }
 
     private static void saveGeneralResults(Double probability) {
-        String fileName = String.format("%s/general_%.4f.txt", RESULTS_DIR, probability);
+        String fileName = String.format("%s/general_%.4f.txt", resultsDirectory, probability);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (Integer result : results) {
@@ -118,6 +129,22 @@ public class VoterModel {
             }
         } catch (IOException e) {
             System.err.println("Error writing to file: " + fileName);
+            System.exit(1);
+        }
+    }
+
+    private static void saveConfigurationJson() {
+        String fileName = String.format("%s/config.json", resultsDirectory);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write("{\n");
+            writer.write("  \"gridSize\": " + gridSize + ",\n");
+            writer.write("  \"monteCarloSteps\": " + monteCarloSteps + ",\n");
+            writer.write("  \"saveInterval\": " + saveInterval + ",\n");
+            writer.write("  \"probabilities\": [" + String.join(", ", Arrays.stream(PROBABILITIES).mapToObj(String::valueOf).toArray(String[]::new)) + "]\n");
+            writer.write("}\n");
+        } catch (IOException e) {
+            System.err.println("Error writing configuration to file: " + fileName);
             System.exit(1);
         }
     }
