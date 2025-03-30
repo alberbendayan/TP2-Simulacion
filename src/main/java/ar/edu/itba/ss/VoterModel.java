@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -40,9 +39,9 @@ public class VoterModel {
         saveInterval = gridSize * gridSize;
 
         int resultMaxLengthTemplate = String.valueOf(monteCarloSteps).length();
-        resultFileNameTemplate = String.format(resultFileNameTemplate, resultMaxLengthTemplate);
+        resultFileNameTemplate = String.format(Locale.US, resultFileNameTemplate, resultMaxLengthTemplate);
 
-        resultsDirectory = String.format("%s/%s", RESULTS_DIR, new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()));
+        resultsDirectory = String.format(Locale.US, "%s/%s", RESULTS_DIR, new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()));
 
         File dir = new File(resultsDirectory);
         if (!dir.exists() && !dir.mkdirs()) {
@@ -70,7 +69,7 @@ public class VoterModel {
     }
 
     private static void runMonteCarloSimulation(double probability) {
-        String dirPath = String.format("%s/%.4f", resultsDirectory, probability);
+        String dirPath = String.format(Locale.US, "%s/%.4f", resultsDirectory, probability);
 
         File dir = new File(dirPath);
         if (!dir.exists() && !dir.mkdirs()) {
@@ -100,7 +99,7 @@ public class VoterModel {
     }
 
     private static void saveResults(int iteration, String dirPath) {
-        String fileName = String.format(resultFileNameTemplate, dirPath, iteration);
+        String fileName = String.format(Locale.US, resultFileNameTemplate, dirPath, iteration);
         int sum = 0;
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
@@ -120,7 +119,7 @@ public class VoterModel {
     }
 
     private static void saveGeneralResults(Double probability) {
-        String fileName = String.format("%s/general_%.4f.txt", resultsDirectory, probability);
+        String fileName = String.format(Locale.US, "%s/general_%.4f.txt", resultsDirectory, probability);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             for (Integer result : results) {
@@ -134,7 +133,7 @@ public class VoterModel {
     }
 
     private static void saveConfigurationJson() {
-        String fileName = String.format("%s/config.json", resultsDirectory);
+        String fileName = String.format(Locale.US, "%s/config.json", resultsDirectory);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             writer.write("{\n");

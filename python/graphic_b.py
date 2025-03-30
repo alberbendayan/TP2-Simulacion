@@ -1,65 +1,60 @@
-import matplotlib.pyplot as plt
-import numpy as np
+import json
 import os
 import sys
 
-def plot_monte_carlo_differences(filename,output_file):
-    try:
-        # Read the data from the file
-        data = np.loadtxt(filename)
-        
-        # Create x-axis (step numbers)
-        steps = np.arange(1, len(data) + 1)
-        
-        # Create the plot
-        plt.figure(figsize=(10, 6))
-        plt.plot(steps, data, 'b-', linewidth=1)
-        plt.axhline(y=0, color='r', linestyle='--', alpha=0.5)
-        
-        # Add labels and title
-        plt.xlabel('Monte Carlo Step')
-        plt.ylabel('Difference (1 - (-1))')
-        plt.title('Difference between 1 and -1 in Monte Carlo Simulation')
-        
-        # Add grid for better readability
-        plt.grid(True, alpha=0.3)
-        plt.ylim(0, 1)
-        
-        # Save the plot
-        plt.tight_layout()
-        plt.savefig(output_file)
+import matplotlib.pyplot as plt
+import numpy as np
 
-        # no mostremos xq perdemos recursos
-        # plt.show()
-        
-        # Check if stationary state is reached
-        # (You might want to modify this criterion based on your specific definition)
-        window_size = min(100, len(data)//10)  # Use last 10% or 100 points, whichever is smaller
-        if window_size > 0:
-            recent_data = data[-window_size:]
-            mean = np.mean(recent_data)
-            std_dev = np.std(recent_data)
-            print(f"Last {window_size} steps statistics:")
-            print(f"Mean: {mean:.4f}")
-            print(f"Standard Deviation: {std_dev:.4f}")
-            print(f"Coefficient of Variation: {std_dev/abs(mean) if mean != 0 else float('inf'):.4f}")
-            
-    except Exception as e:
-        print(f"Error processing the file: {e}")
 
-if __name__ == "__main__":
-    # Replace with the path to your data file
-
-    if len(sys.argv) != 3:
-        print("Uso: python script.py <N>")
+def main():
+    if len(sys.argv) < 3:
+        print("Uso: python graphic_b.py <results_folder> <probability> [show_figure]")
         sys.exit(1)
 
-    path = sys.argv[1]
-    p = sys.argv[2]
+    results_path = sys.argv[1]
+    p = float(sys.argv[2])
+    show_figure = bool(sys.argv[3]) if len(sys.argv) > 3 else False
 
-    output_folder = "../graphics_result"
-    os.makedirs(output_folder, exist_ok=True) # carpeta de salida
+    output_folder = os.path.join(results_path, "graphics")
+    config = os.path.join(results_path, "config.json")
 
-    output_file = output_folder+"/monte_carlo_differences_"+p+".png"
-    file_path = path+"general_"+p+".txt"
-    plot_monte_carlo_differences(file_path,output_file)
+    if not os.path.exists(config):
+        print("No se encontró el archivo de configuración:", config)
+        sys.exit(1)
+
+    with open(config, "r") as config_file:
+        config = json.load(config_file)
+
+    grid_size = config.get("gridSize", None)
+    probabilities = config.get("probabilities", [])
+
+    if grid_size is None or p not in probabilities:
+        print("El tamaño de la cuadrícula o la probabilidad seleccionada no están definidos en el archivo de configuración.")
+        sys.exit(1)
+
+    data_file = os.path.join(results_path, f"general_{p:.4f}.txt")
+    data = np.loadtxt(data_file, dtype=float)
+
+    steps = np.arange(1, len(data) + 1)
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(steps, data, "b-", linewidth=1)
+
+    plt.xlabel("Pasos de Monte Carlo")
+    plt.ylabel("Media de opiniones")
+    plt.title("Opiniones en la simulación de Monte Carlo")
+
+    plt.grid(True, alpha=0.3)
+    plt.ylim(0, 1)
+    plt.tight_layout()
+
+    os.makedirs(output_folder, exist_ok=True)
+    output_file = os.path.join(output_folder, f"opiniones_{p:.4f}.png")
+    plt.savefig(output_file)
+
+    if show_figure:
+        plt.show()
+
+
+if __name__ == "__main__":
+    main()

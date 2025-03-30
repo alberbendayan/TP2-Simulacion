@@ -18,8 +18,7 @@ def main():
     show_animation = bool(sys.argv[4] if len(sys.argv) > 4 else "False")
 
     data_path = os.path.join(results_path, f"{p:.4f}")
-    output_folder = "../graphics_results"
-
+    output_folder = os.path.join(results_path, "graphics")
     config = os.path.join(results_path, "config.json")
 
     if not os.path.exists(config):
@@ -61,7 +60,7 @@ def main():
     ani = animation.FuncAnimation(fig, update, frames=total_iterations, interval=1, blit=False, repeat=False)
 
     os.makedirs(output_folder, exist_ok=True)
-    file_path = os.path.join(output_folder, f"animacionA_{p}_N{grid_size}.mp4")
+    file_path = os.path.join(output_folder, f"animation_{p:.4f}_N{grid_size}.mp4")
 
     ani.save(file_path, writer="ffmpeg", fps=100)
 
