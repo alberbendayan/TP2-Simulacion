@@ -40,3 +40,5 @@ build/
 ### Misc ###
 result/
 results/
+graphics_results/
+*.vim
