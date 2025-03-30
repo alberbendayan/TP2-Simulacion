@@ -15,7 +15,7 @@ def main():
     results_path = sys.argv[1]
     p = float(sys.argv[2])
     frame_skip = int(sys.argv[3]) if len(sys.argv) > 3 else 10
-    show_animation = bool(sys.argv[4] if len(sys.argv) > 4 else "False")
+    show_animation = sys.argv[4] == "True" if len(sys.argv) > 4 else False
 
     data_path = os.path.join(results_path, f"{p:.4f}")
     output_folder = os.path.join(results_path, "graphics")

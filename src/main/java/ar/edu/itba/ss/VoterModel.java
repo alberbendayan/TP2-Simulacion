@@ -10,7 +10,8 @@ import java.util.*;
 public class VoterModel {
 
     private static final String RESULTS_DIR = "results";
-    private static final double[] PROBABILITIES = {0.01, 0.1, 0.9};
+    // private static final double[] PROBABILITIES = {0.01, 0.1, 0.9};
+    private static final double[] PROBABILITIES = {0.01, 0.05, 0.01, 0.05, 0.06, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.2, 0.4, 0.6, 0.8, 0.9};
 
     private static final List<Integer> results = new ArrayList<>();
     private static final Random random = new Random();

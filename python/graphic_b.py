@@ -13,7 +13,7 @@ def main():
 
     results_path = sys.argv[1]
     p = float(sys.argv[2])
-    show_figure = bool(sys.argv[3]) if len(sys.argv) > 3 else False
+    show_figure = sys.argv[3] == "True" if len(sys.argv) > 3 else False
 
     output_folder = os.path.join(results_path, "graphics")
     config = os.path.join(results_path, "config.json")
