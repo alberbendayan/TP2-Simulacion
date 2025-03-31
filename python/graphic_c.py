@@ -8,7 +8,7 @@ import numpy as np
 
 def main():
     if len(sys.argv) < 3:
-        print("Uso: python graphic_b.py <results_folder> <stationary_point> [show_figure]")
+        print("Uso: python graphic_c.py <results_folder> <stationary_point> [show_figure]")
         sys.exit(1)
 
     results_path = sys.argv[1]
