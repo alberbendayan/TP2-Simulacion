@@ -10,27 +10,35 @@ import java.util.*;
 public class VoterModel {
 
     private static final String RESULTS_DIR = "results";
-    // private static final double[] PROBABILITIES = {0.01, 0.1, 0.9};
-    private static final double[] PROBABILITIES = {0.01, 0.05, 0.01, 0.05, 0.06, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.2, 0.4, 0.6, 0.8, 0.9};
 
     private static final List<Integer> results = new ArrayList<>();
     private static final Random random = new Random();
 
     private static int gridSize = 50;
-    private static int monteCarloSteps = 1000000;
+    private static int monteCarloSteps = 40000;
+    private static int metropolisSteps;
     private static int saveInterval;
 
     private static int[][] grid;
+    private static double[] probabilities = {0.01, 0.1, 0.9};
 
     private static String resultsDirectory;
     private static String resultFileNameTemplate = "%%s/result_%%0%dd.txt";
+
+    private static boolean saveStates = false;
 
     public static void main(String[] args) {
         if (args.length > 0) {
             try {
                 gridSize = Integer.parseInt(args[0]);
                 monteCarloSteps = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
+                if (args.length > 2) {
+                    probabilities = Arrays.stream(args[2].split(",")).mapToDouble(Double::valueOf).toArray();
+                    if (args.length > 3) {
+                        saveStates = Boolean.parseBoolean(args[3]);
+                    }
+                }
+            } catch (Exception e) {
                 System.err.println("Usage: java VoterModel <grid_size> <monte_carlo_steps>");
                 System.exit(1);
             }
@@ -38,8 +46,9 @@ public class VoterModel {
 
         grid = new int[gridSize][gridSize];
         saveInterval = gridSize * gridSize;
+        metropolisSteps = monteCarloSteps * saveInterval;
 
-        int resultMaxLengthTemplate = String.valueOf(monteCarloSteps).length();
+        int resultMaxLengthTemplate = String.valueOf(metropolisSteps).length();
         resultFileNameTemplate = String.format(Locale.US, resultFileNameTemplate, resultMaxLengthTemplate);
 
         resultsDirectory = String.format(Locale.US, "%s/%s", RESULTS_DIR, new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()));
@@ -52,7 +61,7 @@ public class VoterModel {
 
         saveConfigurationJson();
 
-        for (double probability : PROBABILITIES) {
+        for (double probability : probabilities) {
             results.clear();
 
             initializeGrid();
@@ -72,13 +81,15 @@ public class VoterModel {
     private static void runMonteCarloSimulation(double probability) {
         String dirPath = String.format(Locale.US, "%s/%.4f", resultsDirectory, probability);
 
-        File dir = new File(dirPath);
-        if (!dir.exists() && !dir.mkdirs()) {
-            System.err.println("Failed to create directory: " + dir);
-            System.exit(1);
+        if (saveStates) {
+            File dir = new File(dirPath);
+            if (!dir.exists() && !dir.mkdirs()) {
+                System.err.println("Failed to create directory: " + dir);
+                System.exit(1);
+            }
         }
 
-        for (int step = 1; step <= monteCarloSteps; step++) {
+        for (int step = 1; step <= metropolisSteps; step++) {
             int i = random.nextInt(gridSize);
             int j = random.nextInt(gridSize);
 
@@ -103,17 +114,25 @@ public class VoterModel {
         String fileName = String.format(Locale.US, resultFileNameTemplate, dirPath, iteration);
         int sum = 0;
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+        if (saveStates) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+                for (int i = 0; i < gridSize; i++) {
+                    for (int j = 0; j < gridSize; j++) {
+                        writer.write(grid[i][j] + " ");
+                        sum += grid[i][j];
+                    }
+                    writer.newLine();
+                }
+            } catch (IOException e) {
+                System.err.println("Error writing to file: " + fileName);
+                System.exit(1);
+            }
+        } else {
             for (int i = 0; i < gridSize; i++) {
                 for (int j = 0; j < gridSize; j++) {
-                    writer.write(grid[i][j] + " ");
                     sum += grid[i][j];
                 }
-                writer.newLine();
             }
-        } catch (IOException e) {
-            System.err.println("Error writing to file: " + fileName);
-            System.exit(1);
         }
 
         results.add(sum);
@@ -140,8 +159,9 @@ public class VoterModel {
             writer.write("{\n");
             writer.write("  \"gridSize\": " + gridSize + ",\n");
             writer.write("  \"monteCarloSteps\": " + monteCarloSteps + ",\n");
+            writer.write("  \"metropolisSteps\": " + metropolisSteps + ",\n");
             writer.write("  \"saveInterval\": " + saveInterval + ",\n");
-            writer.write("  \"probabilities\": [" + String.join(", ", Arrays.stream(PROBABILITIES).mapToObj(String::valueOf).toArray(String[]::new)) + "]\n");
+            writer.write("  \"probabilities\": [" + String.join(", ", Arrays.stream(probabilities).mapToObj(String::valueOf).toArray(String[]::new)) + "]\n");
             writer.write("}\n");
         } catch (IOException e) {
             System.err.println("Error writing configuration to file: " + fileName);
