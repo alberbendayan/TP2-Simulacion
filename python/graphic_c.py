@@ -40,18 +40,18 @@ def main():
         data = np.loadtxt(data_file, dtype=float)
 
         recent_data = data[stationary_point:]
-        mean_opinion = np.mean(recent_data)
-        mean_opinion_squared = np.mean(recent_data**2)
-        succeptibility = grid_size**2 * (mean_opinion_squared - mean_opinion**2)
+        mean_consenso = np.mean(recent_data)
+        mean_consenso_squared = np.mean(recent_data**2)
+        succeptibility = grid_size**2 * (mean_consenso_squared - mean_consenso**2)
         std = np.std(recent_data)
 
         graph_data[f"{p:.4f}"] = {
-            "mean_opinion": mean_opinion,
+            "mean_consenso": mean_consenso,
             "succeptibility": succeptibility,
             "std": std,
         }
 
-    # Graficar la susceptibilidad y la opinión media en el mismo gráfico con diferentes escalas
+    # Graficar la susceptibilidad y la consenso medio en el mismo gráfico con diferentes escalas
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
     # Convertir las claves a valores numéricos para poder ordenarlos
@@ -62,7 +62,7 @@ def main():
 
     # Datos para graficar
     susceptibilities = [graph_data[f"{p:.4f}"]["succeptibility"] for p in sorted_probs]
-    mean_opinions = [graph_data[f"{p:.4f}"]["mean_opinion"] for p in sorted_probs]
+    mean_consensos = [graph_data[f"{p:.4f}"]["mean_consenso"] for p in sorted_probs]
     std_devs = [graph_data[f"{p:.4f}"]["std"] for p in sorted_probs]
 
     # Gráfico de susceptibilidad (eje izquierdo)
@@ -73,11 +73,11 @@ def main():
     ax1.tick_params(axis="y", labelcolor=color1)
     ax1.grid(True, alpha=0.3)
 
-    # Gráfico de opinión media (eje derecho)
+    # Gráfico de consenso medio (eje derecho)
     ax2 = ax1.twinx()
     color2 = "red"
-    ax2.set_ylabel("Opinión Media", color=color2)
-    ax2.errorbar(sorted_probs_str, mean_opinions, yerr=std_devs, fmt="s-.", color=color2, linewidth=1, capsize=3, label="Opinión Media ± σ")
+    ax2.set_ylabel("Consenso Medio", color=color2)
+    ax2.errorbar(sorted_probs_str, mean_consensos, yerr=std_devs, fmt="s-.", color=color2, linewidth=1, capsize=3, label="Consenso Medio ± σ")
     ax2.tick_params(axis="y", labelcolor=color2)
 
     # Añadir leyendas para ambos ejes
@@ -85,12 +85,12 @@ def main():
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
 
-    plt.title("Susceptibilidad y Opinión Media en la simulación de Monte Carlo")
+    plt.title("Susceptibilidad y Consenso Medio en la simulación de Monte Carlo")
     plt.tight_layout()
 
     # Si se encuentra en output_folder, guarda la figura
     os.makedirs(output_folder, exist_ok=True)
-    plt.savefig(os.path.join(output_folder, "susceptibility_and_opinion.png"), dpi=300)
+    plt.savefig(os.path.join(output_folder, "susceptibility_and_concensus.png"), dpi=300)
 
     if show_figure:
         plt.show()

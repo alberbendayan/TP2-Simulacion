@@ -25,7 +25,7 @@ public class VoterModel {
     private static String resultsDirectory;
     private static String resultFileNameTemplate = "%%s/result_%%0%dd.txt";
 
-    private static boolean saveStates = false;
+    private static boolean saveStates = true;
 
     public static void main(String[] args) {
         if (args.length > 0) {
@@ -39,7 +39,7 @@ public class VoterModel {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Usage: java VoterModel <grid_size> <monte_carlo_steps>");
+                System.err.println("Usage: java VoterModel <grid_size> <monte_carlo_steps> [<probabilities>] [<save_states>]");
                 System.exit(1);
             }
         }

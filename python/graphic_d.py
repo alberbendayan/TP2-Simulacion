@@ -23,7 +23,7 @@ def main():
     grid_sizes = []
 
     # Colores para las diferentes curvas
-    colors = ["blue", "red", "green", "purple", "orange", "brown", "pink", "gray", "olive", "cyan"]
+    colors = ["blue", "red", "green", "yellow", "orange", "brown", "pink", "gray", "olive", "cyan"]
 
     for idx, results_path in enumerate(results_paths):
         config_file = os.path.join(results_path, "config.json")
@@ -74,13 +74,13 @@ def process_results(results_path, grid_size, probabilities, stationary_point):
             continue
 
         recent_data = data[stationary_point:]
-        mean_opinion = np.mean(recent_data)
-        mean_opinion_squared = np.mean(recent_data**2)
-        susceptibility = grid_size**2 * (mean_opinion_squared - mean_opinion**2)
+        mean_consenso = np.mean(recent_data)
+        mean_consenso_squared = np.mean(recent_data**2)
+        susceptibility = grid_size**2 * (mean_consenso_squared - mean_consenso**2)
         std = np.std(recent_data)
 
         graph_data[f"{p:.4f}"] = {
-            "mean_opinion": mean_opinion,
+            "mean_consenso": mean_consenso,
             "susceptibility": susceptibility,
             "std": std,
         }
@@ -89,14 +89,13 @@ def process_results(results_path, grid_size, probabilities, stationary_point):
 
 
 def create_figures(all_data, grid_sizes):
-    """Crea dos figuras: una para susceptibilidad y otra para opinión media."""
     # Figura 1: Susceptibilidad para cada tamaño de grilla
     fig_susceptibility = plt.figure(figsize=(10, 6))
     ax_susceptibility = fig_susceptibility.add_subplot(111)
 
-    # Figura 2: Opinión media para cada tamaño de grilla
-    fig_opinion = plt.figure(figsize=(10, 6))
-    ax_opinion = fig_opinion.add_subplot(111)
+    # Figura 2: consenso medio para cada tamaño de grilla
+    fig_consenso = plt.figure(figsize=(10, 6))
+    ax_consenso = fig_consenso.add_subplot(111)
 
     for grid_size in sorted(all_data.keys()):
         data = all_data[grid_size]["data"]
@@ -110,16 +109,16 @@ def create_figures(all_data, grid_sizes):
 
         # Datos para graficar
         susceptibilities = [data[f"{p:.4f}"]["susceptibility"] for p in sorted_probs]
-        mean_opinions = [data[f"{p:.4f}"]["mean_opinion"] for p in sorted_probs]
+        mean_consensos = [data[f"{p:.4f}"]["mean_consenso"] for p in sorted_probs]
         std_devs = [data[f"{p:.4f}"]["std"] for p in sorted_probs]
 
         # Graficar susceptibilidad
         ax_susceptibility.plot(sorted_probs_str, susceptibilities, "o-.", color=color, linewidth=1.5, label=f"Grid {grid_size}x{grid_size}")
 
-        # Graficar opinión media con barras de error
-        ax_opinion.errorbar(
+        # Graficar Consenso medio con barras de error
+        ax_consenso.errorbar(
             sorted_probs_str,
-            mean_opinions,
+            mean_consensos,
             yerr=std_devs,
             fmt="s-.",
             color=color,
@@ -135,19 +134,19 @@ def create_figures(all_data, grid_sizes):
     ax_susceptibility.grid(True, alpha=0.3)
     ax_susceptibility.legend(loc="best")
 
-    # Configurar gráfico de opinión media
-    ax_opinion.set_xlabel("Probabilidad")
-    ax_opinion.set_ylabel("Opinión Media")
-    ax_opinion.set_title("Opinión Media para diferentes tamaños de grilla")
-    ax_opinion.grid(True, alpha=0.3)
-    ax_opinion.legend(loc="best")
+    # Configurar gráfico de consenso medio
+    ax_consenso.set_xlabel("Probabilidad")
+    ax_consenso.set_ylabel("Consenso Medio")
+    ax_consenso.set_title("Consenso Medio para diferentes tamaños de grilla")
+    ax_consenso.grid(True, alpha=0.3)
+    ax_consenso.legend(loc="best")
 
     # Guardar las figuras
     output_folder = "results/graphics"
     os.makedirs(output_folder, exist_ok=True)
 
     fig_susceptibility.savefig(os.path.join(output_folder, "comparison_susceptibility.png"), dpi=300)
-    fig_opinion.savefig(os.path.join(output_folder, "comparison_opinion.png"), dpi=300)
+    fig_consenso.savefig(os.path.join(output_folder, "comparison_consenso.png"), dpi=300)
 
     # Mostrar ambas figuras de forma no bloqueante
     plt.show(block=False)
