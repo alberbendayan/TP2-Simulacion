@@ -12,6 +12,8 @@ Python
 
 # Instalando las dependencias
 
+Para instalar las dependencias, ubicarse en la carpeta `python` haciendo `cd ./python/` y luego correr:
+
 ```sh
 # Si python 3.12.9 no esta instalado se puede instalar haciendo
 uv python install 3.12.9
@@ -63,9 +65,9 @@ consenso en cada estado.
 
 # Ejecución de la animación y los gráficos
 
-Hay cuatro archivos que generan los videos y las imágenes de los gráficos dentro
-de una carpeta `graphics/` en la carpeta de resultados de la simulación que se
-seleccione:
+Hay cuatro archivos dentro de la carpeta `python` que generan los videos y las
+imágenes de los gráficos dentro de una carpeta `graphics/` en la carpeta de
+resultados de la simulación que se seleccione:
 
 1. Uno genera una animación con los estados de cada fotograma.
 2. El otro muestra una línea temporal de la media de las opiniones pudiéndose
