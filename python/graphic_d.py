@@ -105,7 +105,7 @@ def create_figures(all_data, grid_sizes):
         prob_values = [float(p) for p in data.keys()]
         sorted_indices = np.argsort(prob_values)
         sorted_probs = [prob_values[i] for i in sorted_indices]
-        sorted_probs_str = [f"{p:.4f}" for p in sorted_probs]
+        sorted_probs_str = [str(p) for p in sorted_probs]
 
         # Datos para graficar
         susceptibilities = [data[f"{p:.4f}"]["susceptibility"] for p in sorted_probs]
@@ -113,14 +113,21 @@ def create_figures(all_data, grid_sizes):
         std_devs = [data[f"{p:.4f}"]["std"] for p in sorted_probs]
 
         # Graficar susceptibilidad
-        ax_susceptibility.plot(sorted_probs_str, susceptibilities, "o-.", color=color, linewidth=1.5, label=f"Grid {grid_size}x{grid_size}")
+        ax_susceptibility.plot(
+            sorted_probs_str,
+            susceptibilities,
+            "o:",
+            color=color,
+            linewidth=1.5,
+            label=f"Grid {grid_size}x{grid_size}",
+        )
 
         # Graficar Consenso medio con barras de error
         ax_consenso.errorbar(
             sorted_probs_str,
             mean_consensos,
             yerr=std_devs,
-            fmt="s-.",
+            fmt="s:",
             color=color,
             linewidth=1.5,
             capsize=3,
@@ -130,20 +137,21 @@ def create_figures(all_data, grid_sizes):
     # Configurar gráfico de susceptibilidad
     ax_susceptibility.set_xlabel("Probabilidad")
     ax_susceptibility.set_ylabel("Susceptibilidad")
-    ax_susceptibility.set_title("Susceptibilidad para diferentes tamaños de grilla")
     ax_susceptibility.grid(True, alpha=0.3)
     ax_susceptibility.legend(loc="best")
 
     # Configurar gráfico de consenso medio
     ax_consenso.set_xlabel("Probabilidad")
     ax_consenso.set_ylabel("Consenso Medio")
-    ax_consenso.set_title("Consenso Medio para diferentes tamaños de grilla")
     ax_consenso.grid(True, alpha=0.3)
     ax_consenso.legend(loc="best")
 
     # Guardar las figuras
     output_folder = "results/graphics"
     os.makedirs(output_folder, exist_ok=True)
+
+    fig_susceptibility.tight_layout()
+    fig_consenso.tight_layout()
 
     fig_susceptibility.savefig(os.path.join(output_folder, "comparison_susceptibility.png"), dpi=300)
     fig_consenso.savefig(os.path.join(output_folder, "comparison_consenso.png"), dpi=300)

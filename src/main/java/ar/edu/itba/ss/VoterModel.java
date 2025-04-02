@@ -39,7 +39,7 @@ public class VoterModel {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Usage: java VoterModel <grid_size> <monte_carlo_steps> [<probabilities>] [<save_states>]");
+                System.err.println("Usage: java -classpath target/classes ar.edu.itba.ss.VoterModel <grid_size> <monte_carlo_steps> <probabilities> <save_states>");
                 System.exit(1);
             }
         }

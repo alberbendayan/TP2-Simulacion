@@ -42,7 +42,6 @@ def main():
 
     plt.xlabel("Pasos de Monte Carlo")
     plt.ylabel("Media de opiniones")
-    plt.title("Opiniones en la simulación de Monte Carlo")
 
     plt.grid(True, alpha=0.3)
     plt.ylim(0, 1)
